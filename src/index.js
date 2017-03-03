@@ -6,10 +6,14 @@ var firebase = require('firebase');
  * @param {Object} config This must contain either a `firebase_uri` property (deprecated) or a `databaseURL` property
  * @returns {{teams: {get, save, all}, channels: {get, save, all}, users: {get, save, all}}}
  */
-module.exports = function(config, name) {
+module.exports = function(config, name, emailAndPassword) {
 
     if (!config) {
         throw new Error('configuration is required.');
+    }
+
+    if(emailAndPassword && !config.apiKey){
+        throw new Error('apiKey is required when providing credentials.');
     }
 
     // Backwards compatibility shim
@@ -28,6 +32,10 @@ module.exports = function(config, name) {
         teamsRef = rootRef.child('teams'),
         usersRef = rootRef.child('users'),
         channelsRef = rootRef.child('channels');
+
+    if(emailAndPassword){
+        firebase.auth().signInWithEmailAndPassword(emailAndPassword.email, emailAndPassword.password);
+    }
 
     return {
         teams: {
